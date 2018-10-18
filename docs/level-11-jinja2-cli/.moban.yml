@@ -1,0 +1,8 @@
+configuration:
+  template_dir:
+    - templates
+  plugin_dir:
+    - moban-string-temp
+  configuration: data.yml
+targets:
+  - a.output: a.stmp
