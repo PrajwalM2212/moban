@@ -2,7 +2,7 @@ configuration:
   template_dir:
     - templates
   plugin_dir:
-    - plugin_dir
+    - moban-string-temp
   configuration: data.yml
 targets:
-  - filter.output: a.template
+  - a.output: fake.stmp
