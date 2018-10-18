@@ -1,0 +1,8 @@
+configuration:
+  template_dir:
+    - templates
+  plugin_dir:
+    - plugin_dir
+  configuration: data.yml
+targets:
+  - filter.output: a.template
