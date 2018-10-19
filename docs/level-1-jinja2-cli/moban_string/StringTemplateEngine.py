@@ -1,33 +1,32 @@
 import os
 from collections import defaultdict
 from lml.plugin import PluginInfo
+from moban.engine import Engine
 from moban.hashstore import HASH_STORE
 import moban.utils as utils
 import moban.constants as constants
 import moban.exceptions as exceptions
 import moban.reporter as reporter
 from string import Template
-from genshi.template import TemplateLoader
 
 
 @PluginInfo(
-    constants.TEMPLATE_ENGINE_EXTENSION, tags=["genshi"]
+    constants.TEMPLATE_ENGINE_EXTENSION, tags=["stmp"]
 )
-class StringTemplateEngine(object):
+class StringTemplateEngine(Engine):
     def __init__(self, template_dirs, context_dirs):
         verify_the_existence_of_directories(template_dirs)
         self.context = Context(context_dirs)
         self.template_dirs = template_dirs
-        self.loader = TemplateLoader(template_dirs)
         self.__file_count = 0
         self.__templated_count = 0
 
     def render_to_file(self, template_file, data_file, output_file):
-        template = self.loader.load(template_file)
+        template = Template(open(template_file).read())
         data = self.context.get_data(data_file)
         reporter.report_templating(template_file, output_file)
 
-        rendered_content = template.generate(**data).render()
+        rendered_content = template.substitute(**data)
         utils.write_file_out(output_file, rendered_content)
         self._file_permissions_copy(template_file, output_file)
 
@@ -75,8 +74,7 @@ class StringTemplateEngine(object):
                 self.__file_count += 1
 
     def _apply_template(self, template_file, data, output):
-        template = self.loader.load(template_file)
-        rendered_content = template.generate(**data).render()
+        rendered_content = Template(open(template_file).read().strip()).substitute(**data)
         rendered_content = utils.strip_off_trailing_new_lines(rendered_content)
         rendered_content = rendered_content.encode("utf-8")
         flag = HASH_STORE.is_file_changed(
