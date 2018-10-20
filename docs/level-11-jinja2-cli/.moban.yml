@@ -6,3 +6,4 @@ configuration:
   configuration: data.yml
 targets:
   - a.output: a.genshi
+  - b.output: b.genshi

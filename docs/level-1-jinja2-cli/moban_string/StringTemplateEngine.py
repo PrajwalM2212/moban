@@ -74,17 +74,22 @@ class StringTemplateEngine(Engine):
                 self.__file_count += 1
 
     def _apply_template(self, template_file, data, output):
-        rendered_content = Template(open(template_file).read().strip()).substitute(**data)
+        rendered_content = Template(
+            open(os.path.join(os.getcwd() + '/templates', template_file)).read().strip()).substitute(**data)
         rendered_content = utils.strip_off_trailing_new_lines(rendered_content)
         rendered_content = rendered_content.encode("utf-8")
+        for a_dir in self.template_dirs:
+            if os.path.exists(os.path.join(a_dir, template_file)) and os.path.isfile(
+                    os.path.join(a_dir, template_file)):
+                temp_dir = a_dir
         flag = HASH_STORE.is_file_changed(
-            output, rendered_content, template_file.filename
+            output, rendered_content, os.path.join(os.path.join(os.getcwd(), temp_dir), template_file)
         )
         if flag:
             utils.write_file_out(
                 output, rendered_content, strip=False, encode=False
             )
-            utils.file_permissions_copy(template_file.filename, output)
+            utils.file_permissions_copy(os.path.join(os.path.join(os.getcwd(), temp_dir), template_file), output)
         return flag
 
     def _file_permissions_copy(self, template_file, output_file):
@@ -94,6 +99,7 @@ class StringTemplateEngine(Engine):
             if os.path.exists(true_template_file):
                 break
         utils.file_permissions_copy(true_template_file, output_file)
+
 
 # specifically for data/config files
 class Context(object):
@@ -131,6 +137,7 @@ class Strategy(object):
                 template_file,
                 (data_file, output_file),
             )
+
     # Decide what should be first
     def what_to_do(self):
         choice = Strategy.DATA_FIRST
@@ -145,6 +152,7 @@ class Strategy(object):
                 choice = Strategy.TEMPLATE_FIRST
         return choice
 
+
 # All this is doing is dict[datafile] = (temp_file,out_file) and dict[temp_file] = (data_file,out_file)
 def _append_to_array_item_to_dictionary_key(adict, key, array_item):
     if array_item in adict[key]:
@@ -154,6 +162,7 @@ def _append_to_array_item_to_dictionary_key(adict, key, array_item):
     else:
         adict[key].append(array_item)
 
+
 # decide if directory exists
 def verify_the_existence_of_directories(dirs):
     if not isinstance(dirs, list):
@@ -162,8 +171,8 @@ def verify_the_existence_of_directories(dirs):
         if os.path.exists(directory):
             continue
         should_I_ignore = (
-            constants.DEFAULT_CONFIGURATION_DIRNAME in directory
-            or constants.DEFAULT_TEMPLATE_DIRNAME in directory
+                constants.DEFAULT_CONFIGURATION_DIRNAME in directory
+                or constants.DEFAULT_TEMPLATE_DIRNAME in directory
         )
         if should_I_ignore:
             # ignore

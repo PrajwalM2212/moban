@@ -13,7 +13,7 @@ import moban.utils as utils
 import moban.constants as constants
 import moban.exceptions as exceptions
 import moban.reporter as reporter
-
+from string import Template
 
 BUILTIN_EXENSIONS = [
     "moban.filters.repr",
@@ -130,6 +130,7 @@ class Engine(object):
                 self.__file_count += 1
 
     def _apply_template(self, template, data, output):
+        print(template.filename)
         rendered_content = template.render(**data)
         rendered_content = utils.strip_off_trailing_new_lines(rendered_content)
         rendered_content = rendered_content.encode("utf-8")
@@ -150,6 +151,7 @@ class Engine(object):
             if os.path.exists(true_template_file):
                 break
         utils.file_permissions_copy(true_template_file, output_file)
+
 
 # specifically for data/config files
 class Context(object):
@@ -187,6 +189,7 @@ class Strategy(object):
                 template_file,
                 (data_file, output_file),
             )
+
     # Decide what should be first
     def what_to_do(self):
         choice = Strategy.DATA_FIRST
@@ -201,6 +204,7 @@ class Strategy(object):
                 choice = Strategy.TEMPLATE_FIRST
         return choice
 
+
 # All this is doing is dict[datafile] = (temp_file,out_file) and dict[temp_file] = (data_file,out_file)
 def _append_to_array_item_to_dictionary_key(adict, key, array_item):
     if array_item in adict[key]:
@@ -210,6 +214,7 @@ def _append_to_array_item_to_dictionary_key(adict, key, array_item):
     else:
         adict[key].append(array_item)
 
+
 # decide if directory exists
 def verify_the_existence_of_directories(dirs):
     if not isinstance(dirs, list):
@@ -218,8 +223,8 @@ def verify_the_existence_of_directories(dirs):
         if os.path.exists(directory):
             continue
         should_I_ignore = (
-            constants.DEFAULT_CONFIGURATION_DIRNAME in directory
-            or constants.DEFAULT_TEMPLATE_DIRNAME in directory
+                constants.DEFAULT_CONFIGURATION_DIRNAME in directory
+                or constants.DEFAULT_TEMPLATE_DIRNAME in directory
         )
         if should_I_ignore:
             # ignore
@@ -228,3 +233,5 @@ def verify_the_existence_of_directories(dirs):
             raise exceptions.DirectoryNotFound(
                 constants.MESSAGE_DIR_NOT_EXIST % os.path.abspath(directory)
             )
+
+
