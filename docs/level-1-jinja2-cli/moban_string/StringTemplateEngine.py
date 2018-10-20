@@ -74,14 +74,14 @@ class StringTemplateEngine(Engine):
                 self.__file_count += 1
 
     def _apply_template(self, template_file, data, output):
-        rendered_content = Template(
-            open(os.path.join(os.getcwd() + '/templates', template_file)).read().strip()).substitute(**data)
-        rendered_content = utils.strip_off_trailing_new_lines(rendered_content)
-        rendered_content = rendered_content.encode("utf-8")
         for a_dir in self.template_dirs:
             if os.path.exists(os.path.join(a_dir, template_file)) and os.path.isfile(
                     os.path.join(a_dir, template_file)):
                 temp_dir = a_dir
+        rendered_content = Template(
+            open(os.path.join(os.path.join(os.getcwd(), temp_dir), template_file)).read().strip()).substitute(**data)
+        rendered_content = utils.strip_off_trailing_new_lines(rendered_content)
+        rendered_content = rendered_content.encode("utf-8")
         flag = HASH_STORE.is_file_changed(
             output, rendered_content, os.path.join(os.path.join(os.getcwd(), temp_dir), template_file)
         )
