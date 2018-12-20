@@ -3,9 +3,9 @@ organisation: moremoban
 author: C. W.
 contact: wangc_2011@hotmail.com
 license: MIT
-version: 0.3.0
-current_version: 0.3.0
-release: 0.2.4
+version: 0.3.5
+current_version: 0.3.5
+release: 0.3.5
 branch: master
 command_line_interface: "moban"
 entry_point: "moban.main:main"
@@ -15,9 +15,9 @@ keywords:
   - jinja2
   - moban
 dependencies:
-  - pyyaml>=3.11
+  - ruamel.yaml
   - jinja2>=2.7.1
-  - lml==0.0.4
+  - lml>=0.0.7
   - crayons
 description: Yet another jinja2 cli command for static text generation
 scm_host: github.com

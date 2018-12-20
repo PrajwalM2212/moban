@@ -1,11 +1,13 @@
 import os
 import re
 import sys
+import json
 import stat
 import errno
 
-import yaml
+from ruamel.yaml import YAML
 
+import moban.reporter as reporter
 import moban.constants as constants
 import moban.exceptions as exceptions
 
@@ -36,6 +38,7 @@ def open_yaml(base_dir, file_name):
     """
     the_yaml_file = search_file(base_dir, file_name)
     with open(the_yaml_file, "r") as data_yaml:
+        yaml = YAML(typ="rt")
         data = yaml.load(data_yaml)
         if data is not None:
             parent_data = None
@@ -49,6 +52,16 @@ def open_yaml(base_dir, file_name):
                 return data
         else:
             return None
+
+
+def open_json(base_dir, file_name):
+    """
+    returns json contents as string
+    """
+    the_json_file = search_file(base_dir, file_name)
+    with open(the_json_file, "r") as json_data:
+        data = json.loads(json_data.read())
+        return data
 
 
 def search_file(base_dir, file_name):
@@ -105,6 +118,7 @@ def expand_directories(file_list, template_dirs):
 def file_permissions_copy(source, dest):
     source_permissions = file_permissions(source)
     dest_permissions = file_permissions(dest)
+
     if source_permissions != dest_permissions:
         os.chmod(dest, source_permissions)
 
@@ -116,7 +130,7 @@ def file_permissions(afile):
 
 
 def strip_off_trailing_new_lines(content):
-    return re.sub("(\n\s+)+$", "\n", content)
+    return re.sub(r"(\n\s+)+$", r"\n", content)
 
 
 def write_file_out(filename, content, strip=True, encode=True):
@@ -147,3 +161,72 @@ def pip_install(packages):
     subprocess.check_call(
         [sys.executable, "-m", "pip", "install", " ".join(packages)]
     )
+
+
+def git_clone(repos, submodule=False):
+    import subprocess
+
+    moban_home = get_moban_home()
+    mkdir_p(moban_home)
+
+    for repo in repos:
+        repo_name = get_repo_name(repo)
+        local_repo_folder = os.path.join(moban_home, repo_name)
+        current_working_dir = os.getcwd()
+        if os.path.exists(local_repo_folder):
+            reporter.report_git_pull(repo_name)
+            os.chdir(local_repo_folder)
+            subprocess.check_call(["git", "pull"])
+            if submodule:
+                subprocess.check_call(["git", "submodule", "update"])
+        else:
+            reporter.report_git_clone(repo_name)
+            os.chdir(moban_home)
+            subprocess.check_call(["git", "clone", repo, repo_name])
+            if submodule:
+                os.chdir(os.path.join(moban_home, repo_name))
+                subprocess.check_call(["git", "submodule", "init"])
+                subprocess.check_call(["git", "submodule", "update"])
+        os.chdir(current_working_dir)
+
+
+def get_template_path(template_dirs, template):
+    temp_dir = ""
+
+    for a_dir in template_dirs:
+        template_file_exists = os.path.exists(
+            os.path.join(a_dir, template)
+        ) and os.path.isfile(os.path.join(a_dir, template))
+
+        if template_file_exists:
+            temp_dir = a_dir
+            temp_file_path = os.path.join(
+                os.getcwd(), os.path.join(temp_dir, template)
+            )
+            return temp_file_path
+    raise exceptions.FileNotFound
+
+
+def get_repo_name(repo_url):
+    path = repo_url.split("/")
+    if repo_url.endswith("/"):
+        repo_name = path[-2]
+    else:
+        repo_name = path[-1]
+    repo_name = _remove_dot_git(repo_name)
+    return repo_name
+
+
+def get_moban_home():
+    home_dir = os.path.expanduser("~")
+    if os.path.exists(home_dir):
+        return os.path.join(
+            home_dir,
+            constants.MOBAN_DIR_NAME_UNDER_USER_HOME,
+            constants.MOBAN_REPOS_DIR_NAME,
+        )
+    raise IOError("Failed to find user home directory")
+
+
+def _remove_dot_git(repo_name):
+    return repo_name.split(".")[0]

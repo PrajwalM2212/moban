@@ -1,6 +1,90 @@
 Change log
 ================================================================================
 
+0.3.5 - 10-12-2018
+--------------------------------------------------------------------------------
+
+Updated
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+#. `#37 <https://github.com/moremoban/moban/issues/37>`_: moban will report line
+   number where the value is empty and the name of mobanfile. Switch from pyyaml
+   to ruamel.yaml.
+
+0.3.4.1 - 28-11-2018
+--------------------------------------------------------------------------------
+
+Updated
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+#. `#137 <https://github.com/moremoban/moban/issues/137>`_: missing
+   contributors.rst file
+
+0.3.4 - 18-11-2018
+--------------------------------------------------------------------------------
+
+Added
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+#. global variables to store the target and template file names in the jinja2
+   engine
+#. moban-handlebars is tested to work well with this version and above
+
+Updated
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+#. Template engine interface has been clarified and documented
+
+0.3.3 - 05-11-2018
+--------------------------------------------------------------------------------
+
+Added
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+#. alternative and expanded syntax for requires, so as to accomendate github
+   submodule recursive
+
+0.3.2 - 04-11-2018
+--------------------------------------------------------------------------------
+
+Added
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+#. `requires` shall support configuration dirs. In other words, configuration
+   file could be stored in python package or git repository.
+
+0.3.1 - 02-11-2018
+--------------------------------------------------------------------------------
+
+Added
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+#. `#97 <https://github.com/moremoban/moban/issues/97>`_: requires will clone a
+   repo if given. Note: only github, gitlab, bitbucket for now
+
+0.3.0 - 27-18-2018
+--------------------------------------------------------------------------------
+
+Added
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+#. `#89 <https://github.com/moremoban/moban/issues/89>`_: Install pypi-hosted
+   mobans through requires syntax
+
+Updated
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+#. `#96 <https://github.com/moremoban/moban/issues/96>`_: Fix for
+   FileNotFoundError for plugins
+#. various documentation updates
+
+Removed
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+#. `#88 <https://github.com/moremoban/moban/issues/88>`_: removed python 2.6
+   support
+#. removed python 3.3 support
+
 0.2.4 - 14-07-2018
 --------------------------------------------------------------------------------
 

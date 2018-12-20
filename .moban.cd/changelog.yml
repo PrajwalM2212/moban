@@ -2,6 +2,60 @@ name: moban
 organisation: moremoban
 releases:
 - changes:
+  - action: Updated
+    details:
+    - "`#37`: moban will report line number where the value is empty and the name of mobanfile. Switch from pyyaml to ruamel.yaml."
+  date: 10-12-2018
+  version: 0.3.5
+- changes:
+  - action: Updated
+    details:
+    - "`#137`: missing contributors.rst file"
+  date: 28-11-2018
+  version: 0.3.4.1
+- changes:
+  - action: Added
+    details:
+    - "global variables to store the target and template file names in the jinja2 engine"
+    - "moban-handlebars is tested to work well with this version and above"
+  - action: Updated
+    details:
+    - Template engine interface has been clarified and documented
+  date: 18-11-2018
+  version: 0.3.4
+- changes:
+  - action: Added
+    details:
+    - "alternative and expanded syntax for requires, so as to accomendate github submodule recursive"
+  date: 05-11-2018
+  version: 0.3.3
+- changes:
+  - action: Added
+    details:
+    - "`requires` shall support configuration dirs. In other words, configuration file could be stored in python package or git repository."
+  date: 04-11-2018
+  version: 0.3.2
+- changes:
+  - action: Added
+    details:
+    - "`#97`: requires will clone a repo if given. Note: only github, gitlab, bitbucket for now"
+  date: 02-11-2018
+  version: 0.3.1
+- changes:
+  - action: Added
+    details:
+    - "`#89`: Install pypi-hosted mobans through requires syntax"
+  - action: Updated
+    details:
+    - "`#96`: Fix for FileNotFoundError for plugins"
+    - "various documentation updates"
+  - action: Removed
+    details:
+    - "`#88`: removed python 2.6 support"
+    - removed python 3.3 support
+  date: 27-18-2018
+  version: 0.3.0
+- changes:
   - action: Added
     details:
     - "`#32`: option 1 copy a directory without its subdirectories."

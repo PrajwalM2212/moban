@@ -5,12 +5,25 @@ from collections import defaultdict
 
 from lml.utils import do_import
 
-import moban.constants as constants
 import moban.reporter as reporter
-from moban.engine import ENGINES
-from moban.utils import merge, parse_targets
-from moban.utils import expand_directories, pip_install
+import moban.constants as constants
+from moban import plugins
+from moban.utils import (
+    merge,
+    git_clone,
+    pip_install,
+    parse_targets,
+    expand_directories,
+)
 from moban.copier import Copier
+
+try:
+    from urllib.parse import urlparse
+except ImportError:
+    from urlparse import urlparse
+
+
+KNOWN_DOMAIN_FOR_GIT = ["github.com", "gitlab.com", "bitbucket.com"]
 
 
 def find_default_moban_file():
@@ -64,7 +77,11 @@ def handle_moban_file_v1(moban_file_configurations, command_line_options):
 
 
 def handle_copy(template_dirs, copy_config):
-    copier = Copier(template_dirs)
+    # expanding function is added so that
+    # copy function understands repo and pypi_pkg path, since 0.3.1
+    expanded_dirs = list(plugins.expand_template_directories(template_dirs))
+
+    copier = Copier(expanded_dirs)
     copier.copy_files(copy_config)
     copier.report()
     return copier.number_of_copied_files()
@@ -80,7 +97,7 @@ def handle_targets(merged_options, targets):
     for file_list in list_of_templating_parameters:
         _, extension = os.path.splitext(file_list[0])
         template_type = extension[1:]
-        primary_template_type = ENGINES.get_primary_key(template_type)
+        primary_template_type = plugins.ENGINES.get_primary_key(template_type)
         if primary_template_type is None:
             primary_template_type = merged_options[
                 constants.LABEL_TEMPLATE_TYPE
@@ -89,8 +106,8 @@ def handle_targets(merged_options, targets):
 
     count = 0
     for template_type in jobs_for_each_engine.keys():
-        engine_class = ENGINES.get_engine(template_type)
-        engine = engine_class(
+        engine = plugins.ENGINES.get_engine(
+            template_type,
             merged_options[constants.LABEL_TMPL_DIRS],
             merged_options[constants.LABEL_CONFIG_DIR],
         )
@@ -137,4 +154,33 @@ def extract_target(options):
 
 
 def handle_requires(requires):
-    pip_install(requires)
+    pypi_pkgs = []
+    git_repos = []
+    git_repos_with_sub = []
+    for require in requires:
+        if isinstance(require, dict):
+            require_type = require.get(constants.REQUIRE_TYPE, "")
+            if require_type.upper() == constants.GIT_REQUIRE:
+                submodule_flag = require.get(constants.GIT_HAS_SUBMODULE)
+                if submodule_flag is True:
+                    git_repos_with_sub.append(require.get(constants.GIT_URL))
+                else:
+                    git_repos.append(require.get(constants.GIT_URL))
+            elif require_type.upper() == constants.PYPI_REQUIRE:
+                pypi_pkgs.append(require.get(constants.PYPI_PACKAGE_NAME))
+        else:
+            if is_repo(require):
+                git_repos.append(require)
+            else:
+                pypi_pkgs.append(require)
+    if pypi_pkgs:
+        pip_install(pypi_pkgs)
+    if git_repos:
+        git_clone(git_repos)
+    if git_repos_with_sub:
+        git_clone(git_repos_with_sub, submodule=True)
+
+
+def is_repo(require):
+    result = urlparse(require)
+    return result.scheme != "" and result.netloc in KNOWN_DOMAIN_FOR_GIT

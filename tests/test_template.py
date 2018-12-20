@@ -1,9 +1,11 @@
 import os
+
 from mock import patch
-from moban.engine import Engine
+from moban.plugins import BaseEngine
+from moban.jinja2.engine import Engine
 
 
-@patch("moban.engine.Engine._render_with_finding_data_first")
+@patch("moban.plugins.BaseEngine._render_with_finding_data_first")
 def test_do_templates_1(_do_templates_with_more_shared_data):
     jobs = [
         ("1.template", "data.yml", "1.output"),
@@ -21,14 +23,14 @@ def test_do_templates_1(_do_templates_with_more_shared_data):
             ("5.template", "6.output"),
         ]
     }
-    engine = Engine(".", ".")
+    engine = BaseEngine(".", ".", Engine)
     engine.render_to_files(jobs)
     _do_templates_with_more_shared_data.assert_called_with(expected)
     if os.path.exists(".moban.hashes"):
         os.unlink(".moban.hashes")
 
 
-@patch("moban.engine.Engine._render_with_finding_template_first")
+@patch("moban.plugins.BaseEngine._render_with_finding_template_first")
 def test_do_templates_2(_do_templates_with_more_shared_templates):
     jobs = [
         ("1.template", "data1.yml", "1.output"),
@@ -46,7 +48,7 @@ def test_do_templates_2(_do_templates_with_more_shared_templates):
             ("data5.yml", "6.output"),
         ]
     }
-    engine = Engine(".", ".")
+    engine = BaseEngine(".", ".", Engine)
     engine.render_to_files(jobs)
     _do_templates_with_more_shared_templates.assert_called_with(expected)
     if os.path.exists(".moban.hashes"):
@@ -55,7 +57,7 @@ def test_do_templates_2(_do_templates_with_more_shared_templates):
 
 def test_do_templates_with_more_shared_templates():
     base_dir = os.path.join("tests", "fixtures")
-    engine = Engine(base_dir, os.path.join(base_dir, "config"))
+    engine = BaseEngine(base_dir, os.path.join(base_dir, "config"), Engine)
     engine._render_with_finding_template_first(
         {"a.jj2": [(os.path.join(base_dir, "child.yaml"), "test")]}
     )
@@ -69,7 +71,7 @@ def test_do_templates_with_more_shared_templates():
 
 def test_do_templates_with_more_shared_data():
     base_dir = os.path.join("tests", "fixtures")
-    engine = Engine(base_dir, os.path.join(base_dir, "config"))
+    engine = BaseEngine(base_dir, os.path.join(base_dir, "config"), Engine)
     engine._render_with_finding_data_first(
         {os.path.join(base_dir, "child.yaml"): [("a.jj2", "test")]}
     )

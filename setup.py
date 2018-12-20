@@ -5,13 +5,15 @@ import os
 import sys
 import codecs
 from shutil import rmtree
-from setuptools import setup, find_packages, Command
+
+from setuptools import Command, setup, find_packages
+
 PY2 = sys.version_info[0] == 2
 PY26 = PY2 and sys.version_info[1] < 7
 
 NAME = 'moban'
 AUTHOR = 'C. W.'
-VERSION = '0.3.0'
+VERSION = '0.3.5'
 EMAIL = 'wangc_2011@hotmail.com'
 LICENSE = 'MIT'
 ENTRY_POINTS = {
@@ -23,12 +25,12 @@ DESCRIPTION = (
     'Yet another jinja2 cli command for static text generation'
 )
 URL = 'https://github.com/moremoban/moban'
-DOWNLOAD_URL = '%s/archive/0.2.4.tar.gz' % URL
-FILES = ['README.rst', 'CHANGELOG.rst']
+DOWNLOAD_URL = '%s/archive/0.3.5.tar.gz' % URL
+FILES = ['README.rst', 'CONTRIBUTORS.rst', 'CHANGELOG.rst']
 KEYWORDS = [
+    'python',
     'jinja2',
     'moban',
-    'python'
 ]
 
 CLASSIFIERS = [
@@ -44,9 +46,9 @@ CLASSIFIERS = [
 ]
 
 INSTALL_REQUIRES = [
-    'pyyaml>=3.11',
+    'ruamel.yaml',
     'jinja2>=2.7.1',
-    'lml==0.0.4',
+    'lml>=0.0.7',
     'crayons',
 ]
 SETUP_COMMANDS = {}
@@ -58,8 +60,8 @@ EXTRAS_REQUIRE = {
 # You do not need to read beyond this line
 PUBLISH_COMMAND = '{0} setup.py sdist bdist_wheel upload -r pypi'.format(
     sys.executable)
-GS_COMMAND = ('gs moban v0.2.4 ' +
-              "Find 0.2.4 in changelog for more details")
+GS_COMMAND = ('gs moban v0.3.5 ' +
+              "Find 0.3.5 in changelog for more details")
 NO_GS_MESSAGE = ('Automatic github release is disabled. ' +
                  'Please install gease to enable it.')
 UPLOAD_FAILED_MSG = (

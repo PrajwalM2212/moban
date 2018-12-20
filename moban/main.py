@@ -8,16 +8,16 @@
     :license: MIT License, see LICENSE for more details
 
 """
-
 import sys
 import argparse
 
-from moban.engine import ENGINES
-from moban.hashstore import HASH_STORE
-from moban.utils import merge, open_yaml
+import moban.reporter as reporter
 import moban.constants as constants
-import moban.exceptions as exceptions
 import moban.mobanfile as mobanfile
+import moban.exceptions as exceptions
+from moban import plugins
+from moban.utils import merge, open_yaml
+from moban.hashstore import HASH_STORE
 import moban.reporter as reporter
 from moban._version import __version__
 
@@ -33,6 +33,7 @@ def main():
         sys.exit()
     HASH_STORE.IGNORE_CACHE_FILE = options[constants.LABEL_FORCE]
     moban_file = options[constants.LABEL_MOBANFILE]
+    load_engine_factory_and_engines()  # Error: jinja2 if removed
     if moban_file is None:
         moban_file = mobanfile.find_default_moban_file()
     if moban_file:
@@ -123,6 +124,7 @@ def handle_moban_file(moban_file, options):
         raise exceptions.MobanfileGrammarException(
             constants.ERROR_NO_TARGETS % moban_file
         )
+    check_none(moban_file_configurations, moban_file)
     version = moban_file_configurations.get(
         constants.MOBAN_VERSION, constants.DEFAULT_MOBAN_VERSION
     )
@@ -135,6 +137,28 @@ def handle_moban_file(moban_file, options):
     HASH_STORE.save_hashes()
 
 
+def check_none(data, moban_file):
+    """
+    check whether the yaml data has empty value such as:
+    """
+    if isinstance(data, dict):
+        for k, v in data.items():
+            if check_none(v, moban_file) is None:
+                loc = data.lc.key(k)
+                raise exceptions.MobanfileGrammarException(
+                    constants.ERROR_MALFORMED_YAML
+                    % (moban_file, loc[0] + 1)  # line number starts from 0
+                )
+    elif isinstance(data, list):
+        for i, x in enumerate(data):
+            if check_none(x, moban_file) is None:
+                loc = data.lc.item(i)
+                raise exceptions.MobanfileGrammarException(
+                    constants.ERROR_MALFORMED_YAML % (moban_file, loc[0] + 1)
+                )
+    return data
+
+
 def handle_command_line(options):
     """
     act upon command options
@@ -142,9 +166,10 @@ def handle_command_line(options):
     options = merge(options, constants.DEFAULT_OPTIONS)
     if options[constants.LABEL_TEMPLATE] is None:
         raise exceptions.NoTemplate(constants.ERROR_NO_TEMPLATE)
-    engine_class = ENGINES.get_engine(options[constants.LABEL_TEMPLATE_TYPE])
-    engine = engine_class(
-        options[constants.LABEL_TMPL_DIRS], options[constants.LABEL_CONFIG_DIR]
+    engine = plugins.ENGINES.get_engine(
+        options[constants.LABEL_TEMPLATE_TYPE],
+        options[constants.LABEL_TMPL_DIRS],
+        options[constants.LABEL_CONFIG_DIR],
     )
     engine.render_to_file(
         options[constants.LABEL_TEMPLATE],
@@ -156,3 +181,7 @@ def handle_command_line(options):
         engine.number_of_templated_files()
     )
     return exit_code
+
+
+def load_engine_factory_and_engines():
+    plugins.make_sure_all_pkg_are_loaded()

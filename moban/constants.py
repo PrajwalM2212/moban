@@ -1,6 +1,5 @@
 import os
 
-
 # Configurations
 PROGRAM_NAME = "moban"
 PROGRAM_DESCRIPTION = (
@@ -50,6 +49,8 @@ DEFAULT_OPTIONS = {
 # moban file version
 MOBAN_VERSION = "moban_file_spec_version"
 DEFAULT_MOBAN_VERSION = "1.0"
+MOBAN_DIR_NAME_UNDER_USER_HOME = ".moban"
+MOBAN_REPOS_DIR_NAME = "repos"
 
 # error messages
 ERROR_DATA_FILE_NOT_FOUND = "Both %s and %s does not exist"
@@ -65,12 +66,21 @@ MESSAGE_FILE_VERSION_NOT_SUPPORTED = "moban file version '%s' is not supported"
 ERROR_INVALID_MOBAN_FILE = "%s is an invalid yaml file."
 ERROR_NO_TARGETS = "No targets in %s"
 ERROR_NO_TEMPLATE = "No template found"
+ERROR_MALFORMED_YAML = "Empty value in %s at line %s"
 
 
 # Shell messages
 HAS_CHANGES = 1
 ERROR = 2
 NO_CHANGES = 0
+
+# Require
+GIT_REQUIRE = "GIT"
+GIT_HAS_SUBMODULE = "submodule"
+GIT_URL = "url"
+PYPI_REQUIRE = "PYPI"
+PYPI_PACKAGE_NAME = "name"
+REQUIRE_TYPE = "type"
 
 
 # Extension
@@ -80,3 +90,7 @@ JINJA_GLOBALS_EXTENSION = "jinja_globals"
 
 TEMPLATE_ENGINE_EXTENSION = "template_engine"
 LIBRARY_EXTENSION = "library"
+
+MOBAN_EXTENSIONS = "^moban_.+$"
+MOBAN_TEMPLATES = "^.+_mobans_pkg$"
+MOBAN_ALL = "%s|%s" % (MOBAN_EXTENSIONS, MOBAN_TEMPLATES)
