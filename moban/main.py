@@ -18,6 +18,7 @@ import moban.exceptions as exceptions
 from moban import plugins
 from moban.utils import merge, open_yaml
 from moban.hashstore import HASH_STORE
+from moban._version import __version__
 
 
 def main():
@@ -26,6 +27,9 @@ def main():
     """
     parser = create_parser()
     options = vars(parser.parse_args())
+    if constants.LABEL_VERSION in options:
+        print("Current version: ", __version__)
+        sys.exit()
     HASH_STORE.IGNORE_CACHE_FILE = options[constants.LABEL_FORCE]
     moban_file = options[constants.LABEL_MOBANFILE]
     load_engine_factory_and_engines()  # Error: jinja2 if removed
@@ -37,9 +41,9 @@ def main():
             if count:
                 sys.exit(count)
         except (
-            exceptions.DirectoryNotFound,
-            exceptions.NoThirdPartyEngine,
-            exceptions.MobanfileGrammarException,
+                exceptions.DirectoryNotFound,
+                exceptions.NoThirdPartyEngine,
+                exceptions.MobanfileGrammarException,
         ) as e:
             reporter.report_error_message(str(e))
             sys.exit(constants.ERROR)
@@ -68,6 +72,9 @@ def create_parser():
     parser.add_argument(
         "-c", "--%s" % constants.LABEL_CONFIG, help="the dictionary file"
     )
+    parser.add_argument("-v", "--%s" % constants.LABEL_VERSION,
+                        action="store_true",
+                        help="Display current version")
     parser.add_argument(
         "-td",
         "--%s" % constants.LABEL_TMPL_DIRS,
@@ -107,8 +114,8 @@ def handle_moban_file(moban_file, options):
             constants.ERROR_INVALID_MOBAN_FILE % moban_file
         )
     if (
-        constants.LABEL_TARGETS not in moban_file_configurations
-        and constants.LABEL_COPY not in moban_file_configurations
+            constants.LABEL_TARGETS not in moban_file_configurations
+            and constants.LABEL_COPY not in moban_file_configurations
     ):
         raise exceptions.MobanfileGrammarException(
             constants.ERROR_NO_TARGETS % moban_file
