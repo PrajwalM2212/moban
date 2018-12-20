@@ -80,6 +80,12 @@ class TestOptions:
         with patch.object(sys, "argv", test_args):
             main()
 
+    @raises(SystemExit)
+    def test_version_option(self):
+        test_args = ["moban", "-v"]
+        with patch.object(sys, "argv", test_args):
+            main()
+
     def tearDown(self):
         self.patcher.stop()
         os.unlink(self.config_file)

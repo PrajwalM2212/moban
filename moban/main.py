@@ -19,6 +19,7 @@ import moban.constants as constants
 import moban.exceptions as exceptions
 import moban.mobanfile as mobanfile
 import moban.reporter as reporter
+from moban._version import __version__
 
 
 def main():
@@ -27,6 +28,9 @@ def main():
     """
     parser = create_parser()
     options = vars(parser.parse_args())
+    if constants.LABEL_VERSION in options:
+        print("Current version :", __version__)
+        sys.exit()
     HASH_STORE.IGNORE_CACHE_FILE = options[constants.LABEL_FORCE]
     moban_file = options[constants.LABEL_MOBANFILE]
     if moban_file is None:
@@ -37,9 +41,9 @@ def main():
             if count:
                 sys.exit(count)
         except (
-            exceptions.DirectoryNotFound,
-            exceptions.NoThirdPartyEngine,
-            exceptions.MobanfileGrammarException,
+                exceptions.DirectoryNotFound,
+                exceptions.NoThirdPartyEngine,
+                exceptions.MobanfileGrammarException,
         ) as e:
             reporter.report_error_message(str(e))
             sys.exit(constants.ERROR)
@@ -59,6 +63,12 @@ def create_parser():
     """
     parser = argparse.ArgumentParser(
         prog=constants.PROGRAM_NAME, description=constants.PROGRAM_DESCRIPTION
+    )
+    parser.add_argument(
+        "-v",
+        "--%s" % constants.LABEL_VERSION,
+        action="store_true",
+        help="Display current version"
     )
     parser.add_argument(
         "-cd",
@@ -107,8 +117,8 @@ def handle_moban_file(moban_file, options):
             constants.ERROR_INVALID_MOBAN_FILE % moban_file
         )
     if (
-        constants.LABEL_TARGETS not in moban_file_configurations
-        and constants.LABEL_COPY not in moban_file_configurations
+            constants.LABEL_TARGETS not in moban_file_configurations
+            and constants.LABEL_COPY not in moban_file_configurations
     ):
         raise exceptions.MobanfileGrammarException(
             constants.ERROR_NO_TARGETS % moban_file
